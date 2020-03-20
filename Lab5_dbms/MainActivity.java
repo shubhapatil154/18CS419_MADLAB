@@ -1,135 +1,83 @@
-package com.example.dbms;
+package com.example.lab5mad;
 
-import androidx.appcompat.app.AppCompatActivity;
-import android.app.AlertDialog.Builder;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
+        import androidx.appcompat.app.AppCompatActivity;
+        import android.app.AlertDialog;
+        import android.os.Bundle;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
 
-
-public class MainActivity extends AppCompatActivity implements OnClickListener {
-    EditText Rollno,Name,Marks;
-    Button Insert,Delete,Update,View,ViewAll;
-    SQLiteDatabase db;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    DatabaseHelper myDB;
+    Button insert_btn,display_btn,delete_btn,update_btn;
+    EditText et1,et2;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Rollno=(EditText)findViewById(R.id.roll);
-        Name=(EditText)findViewById(R.id.name);
-        Marks=(EditText)findViewById(R.id.marks);
-        Insert =(Button)findViewById(R.id.ins);
-        Delete=(Button)findViewById(R.id.del);
-        Update=(Button)findViewById(R.id.upd);
-        View=(Button)findViewById(R.id.vie);
-        ViewAll=(Button)findViewById(R.id.but);
-
-        Insert.setOnClickListener(this);
-        Delete.setOnClickListener(this);
-        Update.setOnClickListener(this);
-        View.setOnClickListener(this);
-        ViewAll.setOnClickListener(this);
-
-        db=openOrCreateDatabase("StudentDB",Context.MODE_PRIVATE,null);
-        db.execSQL("Create Table if not exists student69(rollno VARCHAR,name VARCHAR,marks VARCHAR);");
-
-
+        myDB = new DatabaseHelper(this);
+        et1 = (EditText) findViewById(R.id.editText);
+        et2 = (EditText) findViewById(R.id.editText2);
+        insert_btn = (Button) findViewById(R.id.button);
+        display_btn = (Button) findViewById(R.id.button2);
+        delete_btn = (Button) findViewById(R.id.button3);
+        update_btn = (Button) findViewById(R.id.button4);
+        insert_btn.setOnClickListener(this);
+        display_btn.setOnClickListener(this);
+        delete_btn.setOnClickListener(this);
+        update_btn.setOnClickListener(this);
     }
-    public void  onClick(View view){
-        if(view==Insert){
-            if(Rollno.getText().toString().trim().length()==0|| Name.getText().toString().trim().length()==0|| Marks.getText().toString().trim().length()==0)
-            {
-                showMessage("Error", "Please enter all values");
-                return;
-            }
-            db.execSQL("INSERT INTO student69 VALUES('"+Rollno.getText()+"','"+Name.getText()+ "','"+Marks.getText()+"');");
-            showMessage("Success", "Record added");
-            clearText();
-        }
-        if(view==Delete)
+        public void showMessage(String message)
         {
-            if(Rollno.getText().toString().trim().length()==0)
+            AlertDialog.Builder builder=new AlertDialog.Builder(this);
+            builder.setCancelable(true);
+            builder.setMessage(message);
+            builder.show();
+        }
+
+            public void onClick(View v) {
+                if(v.getId()==R.id.button)
+                {
+                    if (et1.getText().toString().trim().length() == 0 ||et2.getText().toString().trim().length() == 0)
+                    {
+                        showMessage("Error,Please enter all values!");
+                        return;
+                    }
+                    myDB.insert_record(et1.getText().toString(),Integer.parseInt(et2.getText().toString()));
+                    showMessage("Success, Record Inserted!");
+                    clearText();
+                }
+                if(v.getId()==R.id.button2){
+                    StringBuffer record_details=myDB.display_all_records();
+                    showMessage(record_details.toString());
+                }
+                if(v.getId()==R.id.button3)
+                {
+                    if(et1.getText().toString().trim().length() == 0)
+                    {
+                        showMessage("Error, Please enter name!");
+                        return;
+                    }
+                    myDB.delete_record(et1.getText().toString());
+                    showMessage("Success,Record Deleted!");
+                    clearText();
+                }
+            if(v.getId()==R.id.button4)
             {
-                showMessage("Error", "Please enter Rollno");
-                return;
-            }
-            Cursor c=db.rawQuery("SELECT * FROM student69 WHERE rollno='"+Rollno.getText()+"'", null);
-            if(c.moveToFirst()) {
-                db.execSQL("DELETE FROM student69 WHERE rollno='"+Rollno.getText()+"'");
-                showMessage("Success", "Record Deleted");
-            }
-            else {
-                showMessage("Error", "Invalid Rollno");
-            }
-            clearText();
-        }
-        if(view==Update){
-            if(Rollno.getText().toString().trim().length()==0){
-                showMessage("Error","Please enter Rollno");
-                return;
-            }
-            Cursor c=db.rawQuery("Select * from student69 where rollno='"+Rollno.getText()+"'",null);
-            if(c.moveToFirst()){
-                db.execSQL("UPDATE student69 SET name='"+ Name.getText() + "',marks='"+ Marks.getText() + "' WHERE rollno='"+Rollno.getText()+"'");
-                showMessage("Success", "Record Modified");
-            }
-            else{
-                showMessage("Error", "Invalid Rollno");
-            }
-            clearText();
-        }
-
-
-        if(view==View) {
-
-            if(Rollno.getText().toString().trim().length()==0) {
-                showMessage("Error", "Please enter Rollno");
-                return;
-            }
-            Cursor c=db.rawQuery("SELECT * FROM student69 WHERE rollno='"+Rollno.getText()+"'", null);
-            if(c.moveToFirst()) {
-                Name.setText(c.getString(1));
-                Marks.setText(c.getString(2));
-            }
-            else {
-                showMessage("Error", "Invalid Rollno");
+                if(et1.getText().toString().trim().length()==0||et2.getText().toString().trim().length() == 0)
+                {
+                   showMessage("Error, Please enter data!");
+                   return;
+                }
+                myDB.update_record(et1.getText().toString(),Integer.parseInt(et2.getText().toString()));
+                showMessage("Success,Record Updated!");
                 clearText();
             }
-        }
-        if(view==ViewAll) {
-            Cursor c=db.rawQuery("SELECT * FROM student69", null);
-            if(c.getCount()==0) {
-                showMessage("Error", "No records found");
-                return;
-            }
-            StringBuffer buffer=new StringBuffer();
-            while(c.moveToNext()) {
-                buffer.append("Rollno: "+c.getString(0)+"\n");
-                buffer.append("Name: "+c.getString(1)+"\n");
-                buffer.append("Marks: "+c.getString(2)+"\n\n");
-            }
-            showMessage("Student Details", buffer.toString());
-        }
-    }
-    public void showMessage(String title,String message)
-    {
-        Builder builder=new Builder(this);
-        builder.setCancelable(true);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.show();
     }
     public void clearText()
     {
-        Rollno.setText("");
-        Name.setText("");
-        Marks.setText("");
-        Rollno.requestFocus();
+        et1.setText("");
+        et2.setText("");
     }
 }
