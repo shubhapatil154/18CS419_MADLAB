@@ -1,4 +1,4 @@
-package com.example.Lab10;
+package com.example.Lab10_Alarm;
 
 import android.content.Context;
 
