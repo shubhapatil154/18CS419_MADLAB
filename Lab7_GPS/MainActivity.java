@@ -1,4 +1,4 @@
-package com.example.gps;
+package com.example.Lab7_GPS;
 
 import android.os.Bundle;
 import android.view.View;
