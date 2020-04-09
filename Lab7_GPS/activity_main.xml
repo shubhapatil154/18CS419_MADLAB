@@ -4,7 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.gps.MainActivity"
+    tools:context="com.example.Lab7_GPS.MainActivity"
     tools:ignore="ExtraText">
 
     <Button
